@@ -1,0 +1,18 @@
+Package: socnet
+Type: Package
+Title: Webscrap The Social Networks Listserv
+Version: 0.0.9000
+Authors@R: person("George", "Vega Yon", role=c("aut", "cre"), email="g.vegayon@gmail.com")
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: Functions to extract data from the SOCNET Listserv.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/USCCANA/socnet
+BugReports: https://github.com/USCCANA/socnet/issues
+Imports: 
+    magrittr,
+    xml2,
+    stringr
+RoxygenNote: 6.0.1.9000
+Roxygen: list(markdown = TRUE)
