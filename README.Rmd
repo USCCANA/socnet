@@ -1,0 +1,71 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+[![Travis build status](https://travis-ci.org/USCCANA/socnet.svg?branch=master)](https://travis-ci.org/USCCANA/socnet)
+
+ [![Coverage status](https://codecov.io/gh/USCCANA/socnet/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/socnet?branch=master)
+
+# socnet
+
+This R package is created to access the data available in the
+SOCNET website https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET, which is hosted
+by The University of Florida in its Listserv website.
+
+## Installation
+
+This package is currently under develoment and is only available by downloading the bleeding edge version. You can use `devtools` to get it:
+
+```r
+devtools::install_github("USCCANA/socnet")
+```
+
+
+## Example
+
+Before starts, let's first load the package.
+
+```{r}
+library(socnet)
+```
+
+Suppose that you want to look at the SOCNET archives, but you don't know from where to start. You can use the function `socnet_list_archives` to get a list of the archives that are available in the Listserv. 
+
+```{r example-archives}
+# Getting the URLs to the archives per month
+archives <- socnet_list_archives(cached = TRUE)
+head(archives)
+```
+
+Now that we have the list of archives, we can access one of them and list what are the subjects (emails) that show under that archive with the `socnet_list_subjects` function.
+
+```{r example-subjects}
+# What was discussed during Oct 17?: Getting the subjects during that time
+subjects <- socnet_list_subjects(archives$url[1], cached = TRUE)
+```
+
+Let's take a look at the output
+
+```{r}
+str(subjects)
+head(subjects[,-1])
+```
+
+Now, we can use the function `socnet_parse_subject` to actually get the data of a particular subject. Let's try with the subject titled ``r subjects$subject[1]``
+
+```{r example-fetch-subject}
+socnet_parse_subject(subjects$url[1])
+```
+
+As you can see, the function returned a list with two elements, a vector of meta information, and the actual email.

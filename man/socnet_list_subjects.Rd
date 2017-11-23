@@ -21,6 +21,17 @@ Using \code{cached=FALSE} makes more sense if the user is trying to fetch versio
 of SOCNET that require update, for example, the "SOCNET archives" website
 itself.
 }
+\examples{
+
+# Getting the cached version of the list of archives
+archives <- socnet_list_archives(cached=TRUE)
+
+# We'll see what were the subjects (emails) during the latest archive,
+# again, using a cached version of it
+subjects <- socnet_list_subjects(archives$url[1], cached=TRUE)
+head(subjects)
+
+}
 \seealso{
 Other SOCNET webscrapping tools: \code{\link{socnet_list_archives}},
   \code{\link{socnet_parse_subject}}

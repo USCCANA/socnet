@@ -14,7 +14,12 @@ the website is available in \Sexpr{system.file("cache", package="socnet")}
 and read that instead of downloading the current version of the website.}
 }
 \value{
-A data frame.
+A data frame in which each observation represents one archive
+website. The data frame has two columns:
+\itemize{
+\item \code{url}: The web address to that archive.
+\item \code{date}: The date of the archive.
+}
 }
 \description{
 List SOCNET archives by month
@@ -23,6 +28,12 @@ List SOCNET archives by month
 Using \code{cached=FALSE} makes more sense if the user is trying to fetch versions
 of SOCNET that require update, for example, the "SOCNET archives" website
 itself.
+}
+\examples{
+
+# Listing what is available currently in the cached version.
+archives <- socnet_list_archives(cached=TRUE)
+
 }
 \seealso{
 Other SOCNET webscrapping tools: \code{\link{socnet_list_subjects}},

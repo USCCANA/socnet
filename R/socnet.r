@@ -25,13 +25,25 @@ warn_cached <- function(x) {
 #' List SOCNET archives by month
 #' @param url Character scalar. SOCNET's listserv archive website.
 #' @template cached
-#' @return A data frame.
+#' @return A data frame in which each observation represents one archive
+#' website. The data frame has two columns:
+#' -  `url`: The web address to that archive.
+#' -  `date`: The date of the archive.
 #' @family SOCNET webscrapping tools
 #' @export
+#' @examples
+#'
+#' # Listing what is available currently in the cached version.
+#' archives <- socnet_list_archives(cached=TRUE)
+#'
 socnet_list_archives <- function(
   url    = SOCNET_ARCHIVES_WWW,
   cached = FALSE
   ) {
+
+  oldf <- getOption("stringsAsFactors")
+  on.exit(options(stringsAsFactors = oldf))
+  options(stringsAsFactors = FALSE)
 
   # If retrieving cached version of the data
   if (cached) {
@@ -69,7 +81,8 @@ xml_to_row <- function(x) {
     subject = ans$contents[1],
     from    = ans$contents[2],
     date    = ans$contents[3],
-    size    = ans$contents[4]
+    size    = ans$contents[4],
+    stringsAsFactors = FALSE
   )
 }
 
@@ -79,14 +92,31 @@ xml_to_row <- function(x) {
 #' @template cached
 #' @export
 #' @family SOCNET webscrapping tools
+#' @examples
+#'
+#' # Getting the cached version of the list of archives
+#' archives <- socnet_list_archives(cached=TRUE)
+#'
+#' # We'll see what were the subjects (emails) during the latest archive,
+#' # again, using a cached version of it
+#' subjects <- socnet_list_subjects(archives$url[1], cached=TRUE)
+#' head(subjects)
+#'
 socnet_list_subjects <- function(
   url,
   cached=FALSE
   ) {
 
+  oldf <- getOption("stringsAsFactors")
+  on.exit(options(stringsAsFactors = oldf))
+  options(stringsAsFactors = FALSE)
+
   # If it is more than one
-  if (length(url) > 1)
-    return(lapply(url, socnet_list_subjects))
+  if (length(url) > 1) {
+    ans <- lapply(url, socnet_list_subjects)
+    names(ans) <- url
+    return(ans)
+  }
 
   # Checking if it is a cached version
   if (cached) {
@@ -104,13 +134,17 @@ socnet_list_subjects <- function(
 
   }
 
-  ans <- xml2::read_html(url)
-
-  xml2::xml_find_all(ans, "//table[2][@class='tableframe']") %>%
+  ans <- xml2::read_html(url) %>%
+    xml2::xml_find_all("//table[2][@class='tableframe']") %>%
     xml2::xml_children() %>%
     lapply(xml2::xml_find_all, xpath = ".//p[@class='archive']") %>%
     lapply(xml_to_row) %>% do.call(what = rbind)
 
+  ans[["subject"]] <- stringr::str_replace_all(
+    ans[["subject"]], "\n", " "
+  ) %>% stringr::str_trim()
+
+  ans[-1,,drop=FALSE]
 }
 
 #' Retrieve contents from a particular subject
@@ -125,6 +159,10 @@ socnet_list_subjects <- function(
 #' @family SOCNET webscrapping tools
 socnet_parse_subject <- function(url) {
 
+  oldf <- getOption("stringsAsFactors")
+  on.exit(options(stringsAsFactors = oldf))
+  options(stringsAsFactors = FALSE)
+
   if (length(url) > 1)
     return(lapply(url, socnet_parse_subject))
 
@@ -133,8 +171,9 @@ socnet_parse_subject <- function(url) {
   ans2 <- xml2::xml_find_all(ans, "//b[text()='Subject:']") %>%
     xml2::xml_parent() %>%
     xml2::xml_parent() %>%
-    xml2::xml_parent() %>%
-    xml2::xml_siblings()
+    xml2::xml_parent()
+
+  ans2 <- c(ans2, xml2::xml_siblings(ans2))
 
   # Getting the metadata
   meta <- ans2 %>% lapply(xml2::xml_find_all, xpath = ".//tt") %>%
@@ -142,8 +181,8 @@ socnet_parse_subject <- function(url) {
     lapply(stringr::str_trim, side="both") %>%
     do.call(what = rbind)
 
-  meta[,2] %>%
-    `names<-`(meta[,1])
+  meta <- meta[,2] %>%
+    `names<-`(stringr::str_replace(meta[,1], ":", ""))
 
   # Extracting the contents (plain format)
   contents <- ans %>%

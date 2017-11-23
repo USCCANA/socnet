@@ -1,18 +1,23 @@
-Package: socnet
 Type: Package
-Title: Webscrap The Social Networks Listserv
+Package: socnet
+Title: Web Scraping The Social Networks (SOCNET) Listserv
 Version: 0.0.9000
 Authors@R: person("George", "Vega Yon", role=c("aut", "cre"), email="g.vegayon@gmail.com")
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: Functions to extract data from the SOCNET Listserv.
+Description: Access the data available in the SOCNET website
+  https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET, which is hosted
+  by The University of Florida in its Listserv website.
 License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
 URL: https://github.com/USCCANA/socnet
 BugReports: https://github.com/USCCANA/socnet/issues
 Imports: 
     magrittr,
-    xml2,
-    stringr
-RoxygenNote: 6.0.1.9000
+    stringr,
+    xml2
+Encoding: UTF-8
+LazyData: true
 Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.0.1.9000
+Depends: 
+    R (>= 3.1)
+Suggests: 
+    covr
