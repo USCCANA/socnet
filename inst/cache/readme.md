@@ -1,1 +1,1 @@
-The cached version of SOCNET_ARCHIVES_WWW (https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET) was last updated on 2017-11-22 15:20:18.
+The cached version of SOCNET_ARCHIVES_WWW (https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET) was last updated on 2017-11-27 13:37:07.

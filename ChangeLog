@@ -1,3 +1,10 @@
+2017-11-27  George G. Vega Yon <g.vegayon@gmail.com>
+
+	* data: Added a new dataset that includes all the subjects so far.
+	
+	* vignettes: New vignette with a raw example of how to use this.
+
+
 2017-11-22  George G. Vega Yon <g.vegayon@gmail.com>
 
 	* : Initial version

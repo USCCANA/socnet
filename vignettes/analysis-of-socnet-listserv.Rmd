@@ -1,0 +1,121 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# Most active users
+
+First we load the package and the data
+
+```{r setup}
+library(socnet)
+library(magrittr)
+data("subjects")
+```
+
+The following function creates a ranking and prints it as a nice table. We'll do this a couple of times so it makes sense to write it as a function:
+
+
+```{r ranking-fun}
+rankfun <- function(x, colnames, maxn = 50) {
+  x <- as.data.frame(table(x))
+  x <- x[order(-x$Freq),]
+  dimnames(x) <- list(1:nrow(x), colnames)
+  knitr::kable(x[1:maxn,], row.names = TRUE)  
+}
+```
+
+Now the actual ranking
+
+```{r ranking}
+# Getting the from column and removing weird characters
+from <- subjects$from
+from <- iconv(from, to="ASCII//TRANSLIT")
+
+# Removing <[log in to unmask]> message
+from <- gsub("[<].+", "", from)
+
+# Creating the table
+rankfun(from, colnames=c("User", "Count"))
+```
+
+# Most active words of all time
+
+This is a bit meaningless, but it is just a way to show how the package can be used
+
+```{r active-topics, cache=TRUE}
+
+# Removing symbols
+subject <- subjects$subject
+subject <- stringr::str_replace_all(subject, "[:punct:]", "")
+
+# Splitting words
+subject <- stringr::str_split(subject, pattern = "\\s+")
+
+# Removing stopwords
+subject <- lapply(subject, function(x) x[!(x %in% tm::stopwords())])
+subject <- lapply(subject, tolower)
+
+rankfun(unlist(subject, TRUE), colnames = c("Word", "Count"))
+```
+
+
+# A more refined example: Data management
+
+We'll be using a bit of regular expressions here. The idea is that, instead of capturing plain words, we can actually try to retrieve concepts that are associated with, in this case, data managemnt, which is what motivated this R pacakge in the first place. Let's start by defining some concepts
+
+```{r}
+regex <- "diffusion|contagion"
+
+dat <- iconv(subjects$subject, to = "ASCII//TRANSLIT") %>% tolower
+
+(ids <- stringr::str_which(dat, regex))
+head(dat[ids])
+```
+
+
+# Latest 50 emails
+
+Downloading the data as listed in the `subjects` data frame.
+
+```{r, cache=TRUE}
+dat <- subjects[1:50,"url"]
+pages <- socnet_parse_subject(dat)
+```
+
+This will return a list of length 50, each one of this with the retrieved contents from SOCNET. We can analyze now their contents
+
+```{r reading, cache=TRUE}
+# Extracting contents
+dat <- lapply(pages, "[[", "contents")
+
+# First three lines are about SOCNET
+dat <- lapply(dat, "[", i=-c(1:4))
+```
+
+Now we put all together, remove stopwords and later look at the most popular words
+
+```{r processing, cache=TRUE}
+dat <- dat %>%
+  unlist(TRUE) %>%
+  stringr::str_replace_all(pattern="https?[:graph:]+", replacement = "") %>%
+  stringr::str_replace_all(pattern="[:punct:]+", replacement = "") %>%
+  stringr::str_split("\\s+") %>%
+  unlist(TRUE) %>%
+  tolower %>%
+  stringr::str_subset("^[a-z0-9]+$")
+dat <- dat[!(dat %in% tm::stopwords())]
+```
+
+
+
+```{r}
+rankfun(dat, colnames = c("Word", "Count"))
+```
+

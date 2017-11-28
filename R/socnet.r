@@ -120,7 +120,9 @@ socnet_list_subjects <- function(
 
   # Checking if it is a cached version
   if (cached) {
-    tmp <- paste0(stringr::str_extract(url, "(?<=[=]ind)[0-9]+"), ".zip")
+    tmp <- stringr::str_extract(url, "(?<=[=]ind)[0-9]+[~]?")
+    tmp <- stringr::str_replace(tmp, "[~]", "-")
+    tmp <- paste0(tmp, ".zip")
     tmp <- system.file("cache/archives", tmp, package = "socnet")
 
     # If exists, it must be unzipped
@@ -187,6 +189,12 @@ socnet_parse_subject <- function(url) {
   # Extracting the contents (plain format)
   contents <- ans %>%
     xml2::xml_find_all(xpath = ".//a[text()='text/plain']") %>%
+    xml2::xml_attr(attr="href")
+
+  # Old encoding may be using lower case...
+  if (!length(contents))
+    contents <- ans %>%
+    xml2::xml_find_all(xpath = ".//a[text()='TEXT/PLAIN']") %>%
     xml2::xml_attr(attr="href")
 
   contents <- paste0(LISTS_UFL_WWW, contents) %>% readLines

@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 ```
 
 [![Travis build status](https://travis-ci.org/USCCANA/socnet.svg?branch=master)](https://travis-ci.org/USCCANA/socnet)
-
  [![Coverage status](https://codecov.io/gh/USCCANA/socnet/branch/master/graph/badge.svg)](https://codecov.io/github/USCCANA/socnet?branch=master)
 
 # socnet
@@ -69,3 +68,33 @@ socnet_parse_subject(subjects$url[1])
 ```
 
 As you can see, the function returned a list with two elements, a vector of meta information, and the actual email.
+
+# Most active user (compose side)
+
+```{r}
+rankfun <- function(x, colnames, maxn = 50) {
+  x <- as.data.frame(table(x))
+  x <- x[order(-x$Freq),]
+  dimnames(x) <- list(1:nrow(x), colnames)
+  knitr::kable(x[1:maxn,], row.names = TRUE)  
+}
+
+# Getting the from column and removing weird characters
+data("subjects")
+from <- subjects$from
+from <- iconv(from, to="ASCII//TRANSLIT")
+
+# Removing <[log in to unmask]> message
+from <- gsub("[<].+", "", from)
+
+# Creating the table
+rankfun(from, colnames=c("User", "Count"))
+```
+
+
+# Latest version of the cache data
+
+```{r, results='asis', echo=FALSE}
+readLines("inst/cache/readme.md", warn = FALSE)
+```
+
