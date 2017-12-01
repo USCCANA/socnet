@@ -72,7 +72,7 @@ As you can see, the function returned a list with two elements, a vector of meta
 # Most active user (compose side)
 
 ```{r}
-rankfun <- function(x, colnames, maxn = 50) {
+rankfun <- function(x, colnames, maxn = 100) {
   x <- as.data.frame(table(x))
   x <- x[order(-x$Freq),]
   dimnames(x) <- list(1:nrow(x), colnames)
@@ -85,7 +85,30 @@ from <- subjects$from
 from <- iconv(from, to="ASCII//TRANSLIT")
 
 # Removing <[log in to unmask]> message
-from <- gsub("[<].+", "", from)
+from <- tolower(gsub("[<].+", "", from))
+
+# Fixing some names...
+regexp <- "Th?om(as)?( W)?\\.? Valente"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Thomas W. Valente"
+
+regexp <- "Valdis( Krebs)?"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Valdis Krebs"
+
+regexp <- "Steve Borgatti|Borgatti, Steve"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Steve Borgatti"
+
+regexp <- "Snijders, T\\.A\\.B\\.|Tom A\\.B\\. Snijders|T\\.A\\.B\\.Snijders"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Tom Snijders"
+
+regexp <- "Kathleen( M\\.)? Carley"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Kathleen M. Carley"
+
+# Capitalizing the first letter
+# I learned (copied) this from stackoverflow!
+# https://stackoverflow.com/questions/6364783/capitalize-the-first-letter-of-both-words-in-a-two-word-string
+# from <- gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", from, perl=TRUE)
+from <- stringr::str_to_title(from)
+
 
 # Creating the table
 rankfun(from, colnames=c("User", "Count"))

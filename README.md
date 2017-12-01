@@ -178,7 +178,7 @@ Most active user (compose side)
 ===============================
 
 ``` r
-rankfun <- function(x, colnames, maxn = 50) {
+rankfun <- function(x, colnames, maxn = 100) {
   x <- as.data.frame(table(x))
   x <- x[order(-x$Freq),]
   dimnames(x) <- list(1:nrow(x), colnames)
@@ -191,7 +191,30 @@ from <- subjects$from
 from <- iconv(from, to="ASCII//TRANSLIT")
 
 # Removing <[log in to unmask]> message
-from <- gsub("[<].+", "", from)
+from <- tolower(gsub("[<].+", "", from))
+
+# Fixing some names...
+regexp <- "Th?om(as)?( W)?\\.? Valente"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Thomas W. Valente"
+
+regexp <- "Valdis( Krebs)?"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Valdis Krebs"
+
+regexp <- "Steve Borgatti|Borgatti, Steve"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Steve Borgatti"
+
+regexp <- "Snijders, T\\.A\\.B\\.|Tom A\\.B\\. Snijders|T\\.A\\.B\\.Snijders"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Tom Snijders"
+
+regexp <- "Kathleen( M\\.)? Carley"
+from[grepl(regexp, from, ignore.case = TRUE)] <- "Kathleen M. Carley"
+
+# Capitalizing the first letter
+# I learned (copied) this from stackoverflow!
+# https://stackoverflow.com/questions/6364783/capitalize-the-first-letter-of-both-words-in-a-two-word-string
+# from <- gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", from, perl=TRUE)
+from <- stringr::str_to_title(from)
+
 
 # Creating the table
 rankfun(from, colnames=c("User", "Count"))
@@ -200,57 +223,107 @@ rankfun(from, colnames=c("User", "Count"))
 |     | User                         |  Count|
 |-----|:-----------------------------|------:|
 | 1   | Barry Wellman                |   1100|
-| 2   | Valdis Krebs                 |    347|
+| 2   | Valdis Krebs                 |    573|
 | 3   | Loet Leydesdorff             |    313|
-| 4   | Valdis                       |    222|
-| 5   | Moses Boudourides            |    204|
-| 6   | Bill Richards                |    147|
-| 7   | Vladimir Batagelj            |    126|
-| 8   | Stanley Wasserman            |    121|
-| 9   | Steve Borgatti               |    120|
-| 10  | Alvin Chin                   |    119|
-| 11  | John T. Maloney (jheuristic) |    107|
-| 12  | John McCreery                |    105|
-| 13  | Ian McCulloh                 |    104|
-| 14  | Bruce Cronin                 |    101|
-| 15  | david lazer                  |    101|
-| 16  | Joshua O'Madadhain           |     98|
+| 4   | Moses Boudourides            |    204|
+| 5   | David Lazer                  |    160|
+| 6   | Steve Borgatti               |    152|
+| 7   | Thomas W. Valente            |    149|
+| 8   | Bill Richards                |    147|
+| 9   | Vladimir Batagelj            |    126|
+| 10  | Stanley Wasserman            |    121|
+| 11  | Alvin Chin                   |    120|
+| 12  | John T. Maloney (Jheuristic) |    107|
+| 13  | John Mccreery                |    105|
+| 14  | Ian Mcculloh                 |    104|
+| 15  | Bruce Cronin                 |    101|
+| 16  | Joshua O'madadhain           |     98|
 | 17  | Jordi Comas                  |     97|
-| 18  | \[log in to unmask\]         |     94|
-| 19  | Tansel Ozyer                 |     92|
-| 20  | Brian Keegan                 |     82|
-| 21  | Christoph Trattner           |     80|
-| 22  | Don Steiny                   |     77|
-| 23  | McKiernan, Gerard \[LIB\]    |     72|
-| 24  | Sam Friedman                 |     72|
-| 25  | Martin Everett               |     71|
-| 26  | Mason Alexander Porter       |     71|
-| 27  | Ilan Talmud                  |     69|
-| 28  | Denis Parra                  |     68|
-| 29  | elisa bellotti               |     68|
-| 30  | Katy Borner                  |     67|
-| 31  | Kathleen Carley              |     66|
-| 32  | Tom Valente                  |     65|
-| 33  | Bernie Hogan                 |     63|
-| 34  | Rick Davies                  |     62|
-| 35  | Carl Nordlund                |     60|
-| 36  | Charles Kadushin             |     59|
-| 37  | David Lazer                  |     59|
+| 18  | Martina Morris               |     95|
+| 19  | \[Log In To Unmask\]         |     94|
+| 20  | Tansel Ozyer                 |     92|
+| 21  | Brian Keegan                 |     82|
+| 22  | Christoph Trattner           |     80|
+| 23  | Don Steiny                   |     77|
+| 24  | Rick Davies                  |     77|
+| 25  | Kathleen M. Carley           |     74|
+| 26  | Mckiernan, Gerard \[Lib\]    |     72|
+| 27  | Sam Friedman                 |     72|
+| 28  | Martin Everett               |     71|
+| 29  | Mason Alexander Porter       |     71|
+| 30  | Ilan Talmud                  |     69|
+| 31  | Tom Snijders                 |     69|
+| 32  | Denis Parra                  |     68|
+| 33  | Elisa Bellotti               |     68|
+| 34  | Katy Borner                  |     67|
+| 35  | Bernie Hogan                 |     63|
+| 36  | Carl Nordlund                |     60|
+| 37  | Charles Kadushin             |     59|
 | 38  | Garry Robins                 |     59|
 | 39  | Ryan Lanham                  |     58|
 | 40  | Steven Corman                |     58|
-| 41  | Bill.Richards                |     57|
-| 42  | \[log in to unmask\]         |     56|
+| 41  | Bill.richards                |     57|
+| 42  | \[Log In To Unmask\]         |     56|
 | 43  | Ulrik Brandes                |     56|
 | 44  | H. Russell Bernard           |     55|
 | 45  | Caroline Haythornthwaite     |     54|
-| 46  | Martina Morris               |     53|
-| 47  | Thomas Valente               |     53|
-| 48  | Johnson, Jeffrey C           |     52|
-| 49  | David Carpe                  |     51|
-| 50  | Juergen Pfeffer              |     49|
+| 46  | Hocine Cherifi               |     52|
+| 47  | Johnson, Jeffrey C           |     52|
+| 48  | David Carpe                  |     51|
+| 49  | Juergen Pfeffer              |     49|
+| 50  | David Tindall                |     48|
+| 51  | Kamal Badar                  |     48|
+| 52  | Tom Snijders                 |     48|
+| 53  | Announce Announcements       |     46|
+| 54  | Balazs Vedres                |     45|
+| 55  | Jana Diesner                 |     45|
+| 56  | John Maloney                 |     45|
+| 57  | John T. Maloney              |     45|
+| 58  | Sinan Aral                   |     45|
+| 59  | Gerry Mckiernan              |     41|
+| 60  | Guy Hagen                    |     40|
+| 61  | Mark Newman                  |     40|
+| 62  | Carter T. Butts              |     39|
+| 63  | Richard Rothenberg           |     39|
+| 64  | Robert Ackland               |     39|
+| 65  | George Barnett               |     38|
+| 66  | James Moody                  |     38|
+| 67  | Jeffrey Broadbent            |     38|
+| 68  | Christophe Prieur            |     37|
+| 69  | Wolfe, Alvin                 |     37|
+| 70  | Feng Xia                     |     36|
+| 71  | Mark Tranmer                 |     36|
+| 72  | Mrvar, Andrej                |     35|
+| 73  | Paul B. Hartzog              |     35|
+| 74  | Ronaldo Menezes              |     35|
+| 75  |                              |     34|
+| 76  | Nick Guenther                |     34|
+| 77  | Semenov Alexander            |     34|
+| 78  | Christian Steglich           |     33|
+| 79  | Dc Christopoulos             |     33|
+| 80  | Patrick Doreian              |     33|
+| 81  | Ronald E. Rice               |     33|
+| 82  | Simone Gabbriellini          |     33|
+| 83  | Skvoretz, John               |     33|
+| 84  | Anatoliy Gruzd               |     32|
+| 85  | Edward Vielmetti             |     32|
+| 86  | Elijah Wright                |     32|
+| 87  | Grace Allas                  |     31|
+| 88  | Ainhoa De Federico           |     30|
+| 89  | Eelke Heemskerk              |     30|
+| 90  | Cynthia Typaldos             |     29|
+| 91  | Jose Luis Molina             |     29|
+| 92  | Michal Bojanowski            |     29|
+| 93  | Miranda Jessica Lubbers      |     29|
+| 94  | Reifman, Alan                |     29|
+| 95  | Bruno Goncalves              |     28|
+| 96  | David Krackhardt             |     28|
+| 97  | Dmitry Zinoviev              |     28|
+| 98  | Andrew V. Shipilov           |     27|
+| 99  | Doug Bryan                   |     27|
+| 100 | Jackie Blanco                |     27|
 
 Latest version of the cache data
 ================================
 
-\[1\] "The cached version of SOCNET\_ARCHIVES\_WWW (<https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET>) was last updated on 2017-11-27 13:37:07."
+\[1\] "The cached version of SOCNET\_ARCHIVES\_WWW (<https://lists.ufl.edu/cgi-bin/wa?A0=SOCNET>) was last updated on 2017-12-01 14:54:37."
