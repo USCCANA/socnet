@@ -4,7 +4,14 @@
 \name{subjects}
 \alias{subjects}
 \title{Complete dataset of SOCNET emails}
-\format{A data frame with 200 observations and the following variables}
+\format{A data frame with \Sexpr{nrow(socnet::subjects)} observations and the following variables
+\itemize{
+\item \code{url} Character. URL of the email.
+\item \code{subject} Character. Title (subject) of the email.
+\item \code{from} Character. Author of the email.
+\item \code{date} \Sexpr{paste(class(socnet::subjects$date))}. Date of the email.
+\item \code{size} Integer. Number of lines of the email.
+}}
 \source{
 \Sexpr{readLines(system.file("cache","readme.md", package="socnet"), warn=FALSE)}
 }
